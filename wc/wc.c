@@ -20,7 +20,6 @@ void print_num(int num, int space)
         printf(" ");
     }
     printf("%6d", num);
-
 }
 
 void print_output(int num_lines, int num_words, int num_bytes, int num_chars)
