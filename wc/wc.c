@@ -13,68 +13,6 @@ int total_chars = 0;
 int total_lines = 0;
 int total_words = 0;
 
-int num_bytes_file(FILE *file)
-{
-    fseek(file, 0, SEEK_END);
-    int num_bytes = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    return num_bytes;
-}
-
-int num_chars_file(FILE *file)
-{
-    fseek(file, 0, SEEK_SET);
-    int num_chars = 0;
-    int c;
-    while ((c = fgetc(file)) != EOF)
-    {
-        num_chars++;
-    }
-
-    return num_chars;
-}
-
-int num_lines_file(FILE *file)
-{
-    fseek(file, 0, SEEK_SET);
-    int num_lines = 0;
-    int c;
-    while ((c = fgetc(file)) != EOF)
-    {
-        if (c == '\n')
-        {
-            num_lines++;
-        }
-    }
-    return num_lines;
-}
-
-int num_words_file(FILE *file)
-{
-    fseek(file, 0, SEEK_SET);
-    int num_words = 0;
-    int c;
-    int in_word = 0;
-    while ((c = fgetc(file)) != EOF)
-    {
-        if (isspace(c))
-        {
-            if (in_word)
-            {
-                num_words++;
-                in_word = 0;
-            }
-        }
-        else
-        {
-            in_word = 1;
-        }
-    }
-
-    return num_words;
-}
-
 void print_num(int num, int space)
 {
     if (space)
