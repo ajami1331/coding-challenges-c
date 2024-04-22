@@ -24,6 +24,7 @@ int num_bytes_file(FILE *file)
 
 int num_chars_file(FILE *file)
 {
+    fseek(file, 0, SEEK_SET);
     int num_chars = 0;
     int c;
     while ((c = fgetc(file)) != EOF)
@@ -36,6 +37,7 @@ int num_chars_file(FILE *file)
 
 int num_lines_file(FILE *file)
 {
+    fseek(file, 0, SEEK_SET);
     int num_lines = 0;
     int c;
     while ((c = fgetc(file)) != EOF)
@@ -50,6 +52,7 @@ int num_lines_file(FILE *file)
 
 int num_words_file(FILE *file)
 {
+    fseek(file, 0, SEEK_SET);
     int num_words = 0;
     int c;
     int in_word = 0;
@@ -84,32 +87,32 @@ void print_num(int num, int space)
 
 void process_file(FILE* file)
 {
-    if (count_bytes)
-    {
-        int num_bytes = num_bytes_file(file);
-        print_num(num_bytes, 0);
-        total_bytes += num_bytes;
-    }
-
-    if (count_chars)
-    {
-        int num_chars = num_chars_file(file);
-        print_num(num_chars, count_bytes);
-        total_chars += num_chars;
-    }
-
     if (count_lines)
     {
         int num_lines = num_lines_file(file);
-        print_num(num_lines, count_bytes || count_chars);
+        print_num(num_lines, 0);
         total_lines += num_lines;
     }
 
     if (count_words)
     {
         int num_words = num_words_file(file);
-        print_num(num_words, count_bytes || count_chars || count_lines);
+        print_num(num_words, count_lines);
         total_words += num_words;
+    }
+
+    if (count_bytes)
+    {
+        int num_bytes = num_bytes_file(file);
+        print_num(num_bytes, count_lines || count_words);
+        total_bytes += num_bytes;
+    }
+
+    if (count_chars)
+    {
+        int num_chars = num_chars_file(file);
+        print_num(num_chars, count_lines || count_words || count_bytes);
+        total_chars += num_chars;
     }
 }
 
@@ -177,24 +180,24 @@ int main(int argc, char **argv)
 
     if (filecount > 1)
     {
-        if (count_bytes)
-        {
-            print_num(total_bytes, 0);
-        }
-
-        if (count_chars)
-        {
-            print_num(total_chars, count_bytes);
-        }
-
         if (count_lines)
         {
-            print_num(total_lines, count_bytes || count_chars);
+            print_num(total_lines, 0);
         }
 
         if (count_words)
         {
-            print_num(total_words, count_bytes || count_chars || count_lines);
+            print_num(total_words, count_lines);
+        }
+
+        if (count_bytes)
+        {
+            print_num(total_bytes, count_lines || count_words);
+        }
+
+        if (count_chars)
+        {
+            print_num(total_chars, count_lines || count_words || count_bytes);
         }
 
         printf(" total\n");
