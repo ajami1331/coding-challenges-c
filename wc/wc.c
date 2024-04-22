@@ -1,7 +1,7 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <ctype.h>
 
 #define MAX_FILES 100
 
@@ -11,7 +11,7 @@ typedef struct
     int num_chars;
     int num_lines;
     int num_words;
-    const char* filename;
+    const char *filename;
 } file_info_t;
 
 file_info_t file_info[MAX_FILES];
@@ -70,7 +70,7 @@ void print_output(int ind)
     printf(" %s\n", file_info[ind].filename);
 }
 
-void process_file(FILE* file)
+void process_file(FILE *file)
 {
     fseek(file, 0, SEEK_END);
     int num_bytes = ftell(file);
@@ -107,8 +107,6 @@ void process_file(FILE* file)
     file_info[filecount].num_bytes = num_bytes;
     file_info[filecount].num_chars = num_chars;
 
-    
-
     file_info[0].num_words += num_words;
     file_info[0].num_words += num_words;
     file_info[0].num_lines += num_lines;
@@ -120,29 +118,29 @@ int main(int argc, char **argv)
 {
     int c;
     int use_default_flags = 1;
-    while ((c = getopt (argc, argv, "clmw:")) != -1)
+    while ((c = getopt(argc, argv, "clmw:")) != -1)
     {
         switch (c)
-          {
-          case 'c':
-              count_bytes = 1;
-              use_default_flags = 0;
-              break;
-          case 'l':
-              count_lines = 1;
-              use_default_flags = 0;
-              break;
-          case 'm':
-              count_chars = 1;
-              use_default_flags = 0;
-              break;
-          case 'w':
-              count_words = 1;
-              use_default_flags = 0;
-              break;
-          default:
-              break;
-          }
+        {
+        case 'c':
+            count_bytes = 1;
+            use_default_flags = 0;
+            break;
+        case 'l':
+            count_lines = 1;
+            use_default_flags = 0;
+            break;
+        case 'm':
+            count_chars = 1;
+            use_default_flags = 0;
+            break;
+        case 'w':
+            count_words = 1;
+            use_default_flags = 0;
+            break;
+        default:
+            break;
+        }
     }
 
     if (use_default_flags)
@@ -197,13 +195,16 @@ int main(int argc, char **argv)
     if (count_bytes)
     {
         digits = digit_count(file_info[0].num_bytes);
-    } else if (count_chars)
+    }
+    else if (count_chars)
     {
         digits = digit_count(file_info[0].num_chars);
-    } else if (count_words)
+    }
+    else if (count_words)
     {
         digits = digit_count(file_info[0].num_words);
-    } else if (count_lines)
+    }
+    else if (count_lines)
     {
         digits = digit_count(file_info[0].num_lines);
     }
