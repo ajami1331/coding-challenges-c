@@ -87,30 +87,56 @@ void print_num(int num, int space)
 
 void process_file(FILE* file)
 {
+    fseek(file, 0, SEEK_END);
+    int num_bytes = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    int num_lines = 0;
+    int num_words = 0;
+    int num_chars = 0;
+    int c;
+    int in_word = 0;
+    while ((c = fgetc(file)) != EOF)
+    {
+        num_chars++;
+        if (c == '\n')
+        {
+            num_lines++;
+        }
+
+        if (isspace(c))
+        {
+            if (in_word)
+            {
+                num_words++;
+                in_word = 0;
+            }
+        }
+        else
+        {
+            in_word = 1;
+        }
+    }
+    
     if (count_lines)
     {
-        int num_lines = num_lines_file(file);
         print_num(num_lines, 0);
         total_lines += num_lines;
     }
 
     if (count_words)
     {
-        int num_words = num_words_file(file);
         print_num(num_words, count_lines);
         total_words += num_words;
     }
 
     if (count_bytes)
     {
-        int num_bytes = num_bytes_file(file);
         print_num(num_bytes, count_lines || count_words);
         total_bytes += num_bytes;
     }
 
     if (count_chars)
     {
-        int num_chars = num_chars_file(file);
         print_num(num_chars, count_lines || count_words || count_bytes);
         total_chars += num_chars;
     }
