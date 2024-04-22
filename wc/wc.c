@@ -3,15 +3,38 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#define MAX_FILES 100
+
+typedef struct
+{
+    int num_bytes;
+    int num_chars;
+    int num_lines;
+    int num_words;
+    const char* filename;
+} file_info_t;
+
+file_info_t file_info[MAX_FILES];
+
+int filecount = 0;
+
 int count_bytes = 0;
 int count_chars = 0;
 int count_lines = 0;
 int count_words = 0;
 
-int total_bytes = 0;
-int total_chars = 0;
-int total_lines = 0;
-int total_words = 0;
+int digits = 0;
+
+int digit_count(int num)
+{
+    int count = 0;
+    while (num)
+    {
+        num /= 10;
+        count++;
+    }
+    return count;
+}
 
 void print_num(int num, int space)
 {
@@ -19,34 +42,32 @@ void print_num(int num, int space)
     {
         printf(" ");
     }
-    printf("%6d", num);
+    printf("%*d", digits, num);
 }
 
-void print_output(int num_lines, int num_words, int num_bytes, int num_chars)
+void print_output(int ind)
 {
     if (count_lines)
     {
-        print_num(num_lines, 0);
-        total_lines += num_lines;
+        print_num(file_info[ind].num_lines, 0);
     }
 
     if (count_words)
     {
-        print_num(num_words, count_lines);
-        total_words += num_words;
+        print_num(file_info[ind].num_words, count_lines);
     }
 
     if (count_bytes)
     {
-        print_num(num_bytes, count_lines || count_words);
-        total_bytes += num_bytes;
+        print_num(file_info[ind].num_bytes, count_lines || count_words);
     }
 
     if (count_chars)
     {
-        print_num(num_chars, count_lines || count_words || count_bytes);
-        total_chars += num_chars;
+        print_num(file_info[ind].num_chars, count_lines || count_words || count_bytes);
     }
+
+    printf(" %s\n", file_info[ind].filename);
 }
 
 void process_file(FILE* file)
@@ -81,7 +102,18 @@ void process_file(FILE* file)
         }
     }
 
-    print_output(num_lines, num_words, num_bytes, num_chars);
+    file_info[filecount].num_words = num_words;
+    file_info[filecount].num_lines = num_lines;
+    file_info[filecount].num_bytes = num_bytes;
+    file_info[filecount].num_chars = num_chars;
+
+    
+
+    file_info[0].num_words += num_words;
+    file_info[0].num_words += num_words;
+    file_info[0].num_lines += num_lines;
+    file_info[0].num_bytes += num_bytes;
+    file_info[0].num_chars += num_chars;
 }
 
 int main(int argc, char **argv)
@@ -120,36 +152,70 @@ int main(int argc, char **argv)
         count_chars = 1;
     }
 
-    int filecount = 0;
+    filecount = 0;
+
+    file_info[0] = (file_info_t){0, 0, 0, 0, "total"};
 
     for (int i = 1; i < argc; i++)
     {
-        if (argv[i][0] != '-')
+        if (argv[i][0] == '-')
         {
-            filecount++;
-            FILE *file = fopen(argv[i], "r");
-            if (file == NULL)
-            {
-                fclose(file);
-                fprintf(stderr, "%s %s: No such file or directory\n", argv[0], argv[i]);
-                exit(EXIT_FAILURE);
-            }
-            process_file(file);
-            printf(" %s\n", argv[i]);
-            fclose(file);
+            continue;
         }
+
+        filecount++;
+        if (filecount >= MAX_FILES)
+        {
+            fprintf(stderr, "%s: too many files\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
+
+        if (access(argv[i], F_OK) == -1)
+        {
+            fprintf(stderr, "%s %s: No such file or directory\n", argv[0], argv[i]);
+            exit(EXIT_FAILURE);
+        }
+
+        FILE *file = fopen(argv[i], "r");
+        file_info[filecount] = (file_info_t){0, 0, 0, 0, argv[i]};
+        if (file == NULL)
+        {
+            fclose(file);
+            fprintf(stderr, "%s %s: No such file or directory\n", argv[0], argv[i]);
+            exit(EXIT_FAILURE);
+        }
+        process_file(file);
+        fclose(file);
     }
 
     if (filecount == 0)
     {
+        file_info[0].filename = "";
         process_file(stdin);
-        printf("\n");
     }
 
-    if (filecount > 1)
+    if (count_bytes)
     {
-        print_output(total_lines, total_words, total_bytes, total_chars);
-        printf(" total\n");
+        digits = digit_count(file_info[0].num_bytes);
+    } else if (count_chars)
+    {
+        digits = digit_count(file_info[0].num_chars);
+    } else if (count_words)
+    {
+        digits = digit_count(file_info[0].num_words);
+    } else if (count_lines)
+    {
+        digits = digit_count(file_info[0].num_lines);
+    }
+
+    for (int i = 1; i <= filecount; i++)
+    {
+        print_output(i);
+    }
+
+    if (filecount == 0 || filecount > 1)
+    {
+        print_output(0);
     }
 
     exit(EXIT_SUCCESS);
