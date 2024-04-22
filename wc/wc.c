@@ -19,8 +19,35 @@ void print_num(int num, int space)
     {
         printf(" ");
     }
-    printf("%d", num);
+    printf("%6d", num);
 
+}
+
+void print_output(int num_lines, int num_words, int num_bytes, int num_chars)
+{
+    if (count_lines)
+    {
+        print_num(num_lines, 0);
+        total_lines += num_lines;
+    }
+
+    if (count_words)
+    {
+        print_num(num_words, count_lines);
+        total_words += num_words;
+    }
+
+    if (count_bytes)
+    {
+        print_num(num_bytes, count_lines || count_words);
+        total_bytes += num_bytes;
+    }
+
+    if (count_chars)
+    {
+        print_num(num_chars, count_lines || count_words || count_bytes);
+        total_chars += num_chars;
+    }
 }
 
 void process_file(FILE* file)
@@ -54,30 +81,8 @@ void process_file(FILE* file)
             in_word = 1;
         }
     }
-    
-    if (count_lines)
-    {
-        print_num(num_lines, 0);
-        total_lines += num_lines;
-    }
 
-    if (count_words)
-    {
-        print_num(num_words, count_lines);
-        total_words += num_words;
-    }
-
-    if (count_bytes)
-    {
-        print_num(num_bytes, count_lines || count_words);
-        total_bytes += num_bytes;
-    }
-
-    if (count_chars)
-    {
-        print_num(num_chars, count_lines || count_words || count_bytes);
-        total_chars += num_chars;
-    }
+    print_output(num_lines, num_words, num_bytes, num_chars);
 }
 
 int main(int argc, char **argv)
@@ -144,26 +149,7 @@ int main(int argc, char **argv)
 
     if (filecount > 1)
     {
-        if (count_lines)
-        {
-            print_num(total_lines, 0);
-        }
-
-        if (count_words)
-        {
-            print_num(total_words, count_lines);
-        }
-
-        if (count_bytes)
-        {
-            print_num(total_bytes, count_lines || count_words);
-        }
-
-        if (count_chars)
-        {
-            print_num(total_chars, count_lines || count_words || count_bytes);
-        }
-
+        print_output(total_lines, total_words, total_bytes, total_chars);
         printf(" total\n");
     }
 
